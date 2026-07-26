@@ -37,8 +37,26 @@ func main() {
 		return c.SendString("Hello, Go!")
 	})
 
+	app.Post("/records", func(c fiber.Ctx) error {
+		// body structure
+		// {name: string, details: string}
+		return createRecord(c, db)
+	})
+
 	app.Get("/records", func(c fiber.Ctx) error {
 		return getAllRecords(c, db)
+	})
+
+	app.Get("/records/:id", func(c fiber.Ctx) error {
+		return getRecordByID(c, db)
+	})
+
+	app.Put("/records/:id", func(c fiber.Ctx) error {
+		return updateRecord(c, db)
+	})
+
+	app.Delete("/records/:id", func(c fiber.Ctx) error {
+		return deleteRecord(c, db)
 	})
 
 	log.Fatal(app.Listen(checkPort()))
