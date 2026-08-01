@@ -33,11 +33,19 @@ func main() {
 
 	defer db.Close()
 
-	app.Get("/", func(c fiber.Ctx) error {
+	app.Post("/jwt", func(c fiber.Ctx) error {
+		token, err := GenerateJWT("user123") // Example user ID
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+		}
+		return c.JSON(fiber.Map{"token": token})
+	})
+
+	app.Get("/", JWTProtected(), func(c fiber.Ctx) error {
 		return c.SendString("Hello, Go!")
 	})
 
-	app.Post("/records", func(c fiber.Ctx) error {
+	app.Post("/records", JWTProtected(), func(c fiber.Ctx) error {
 		// body structure
 		// {name: string, details: string}
 		return createRecord(c, db)
@@ -51,11 +59,11 @@ func main() {
 		return getRecordByID(c, db)
 	})
 
-	app.Put("/records/:id", func(c fiber.Ctx) error {
+	app.Put("/records/:id", JWTProtected(), func(c fiber.Ctx) error {
 		return updateRecord(c, db)
 	})
 
-	app.Delete("/records/:id", func(c fiber.Ctx) error {
+	app.Delete("/records/:id", JWTProtected(), func(c fiber.Ctx) error {
 		return deleteRecord(c, db)
 	})
 
